@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>helus · docs</title>
+<meta name="description" content="How helus works: the fee curve, holder payouts, the rules, orbits, where every fee goes, launch settings and the replay API.">
+<meta name="theme-color" content="#0a0e19">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/fav-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/img/fav-64.png">
+<link rel="apple-touch-icon" href="/img/fav-180.png">
+<link rel="preload" href="/fonts/pixelify.woff2?v=2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/helus.css?v=1">
+<link rel="stylesheet" href="/css/app.css?v=1">
+<script type="module" src="/js/docs.js?v=1"></script>
+</head>
+<body class="docsb">
+<div id="grain" aria-hidden="true"></div>
+<header class="top">
+  <a class="brand" href="/"><img src="/img/fav-64.png" alt=""><b>helus</b></a>
+  <nav class="tabs" aria-label="Site"><a href="/">Home</a><a href="/app#launch">Launch</a><a href="/app#replay">Replay</a><a href="/app#calc">Calculator</a><a class="on" href="/docs">Docs</a></nav>
+  <div class="top-r"><span class="status"><i></i>pre-launch</span></div>
+</header>
+<div class="docs">
+  <nav class="toc" aria-label="On this page">
+    <a href="#overview">Overview</a><a href="#curve">The fee curve</a><a href="#payouts">Payouts</a><a href="#rules">Holder rules</a><a href="#orbits">Orbits</a><a href="#split">Where fees go</a><a href="#launch">Launch settings</a><a href="#engine">The payout engine</a><a href="#replay">Replay</a><a href="#api">Public API</a><a href="#status">What's live</a><a href="#risks">Risks</a>
+  </nav>
+  <article class="doc">
+    <section id="overview">
+      <p class="ey"><b>01</b> · overview</p>
+      <h1>helus docs</h1>
+      <p>helus is a launchpad where holders get paid. Every coin launched on helus starts with the same rules, written into its own pool on Meteora's bonding curve: a fee that starts at 99% and falls to 1% over two minutes, a creator who waits, and liquidity that's locked for good. The fees those rules collect are paid to the people holding the coin, every 10 minutes, in SOL.</p>
+      <p>Three ideas carry it:</p>
+      <ul><li><b>Fast is expensive.</b> Snipers can buy, but the first seconds cost almost everything they spend.</li><li><b>Holding earns.</b> 40% of every fee goes to holders, weighted by how long they've held.</li><li><b>Rules don't move.</b> They're set in the pool when a coin is created. Nobody can change them later, including us.</li></ul>
+    </section>
+    <section id="curve">
+      <p class="ey"><b>02</b> · the fee curve</p>
+      <h2>The fee curve</h2>
+      <p>The trading fee is set by the time a trade lands, counted from the coin's first block. It starts at 99% and falls on an exponential curve to 1% at two minutes, then stays at 1%.</p>
+      <pre><code>fee(t) = 99% × (1/99)^(t / 120s)     for the first 120 seconds
+fee(t) = 1%                          after that</code></pre>
+      <table><thead><tr><th>Buy lands at</th><th>Fee</th><th>Of 1 SOL, buys tokens</th></tr></thead><tbody>
+        <tr><td>block 0</td><td>99%</td><td>0.01 SOL</td></tr><tr><td>5 seconds</td><td>82%</td><td>0.18 SOL</td></tr><tr><td>30 seconds</td><td>31%</td><td>0.69 SOL</td></tr><tr><td>1 minute</td><td>9.9%</td><td>0.90 SOL</td></tr><tr><td>2 minutes and later</td><td>1%</td><td>0.99 SOL</td></tr>
+      </tbody></table>
+      <p>The curve is Meteora's own fee scheduler, part of the pool's settings. It applies to every trade in the pool, buys and sells, including the creator's.</p>
+    </section>
+    <section id="payouts">
+      <p class="ey"><b>03</b> · payouts</p>
+      <h2>Payouts</h2>
+      <p>Every 10 minutes the payout engine collects the coin's fees and pays the holders' share in SOL, straight to their wallets. There's nothing to claim and nothing to stake. A payout goes to every eligible wallet, split by weight:</p>
+      <pre><code>weight = tokens held × multiplier (1x to 3x)
+your payout = holders' share × your weight / everyone's weight   (at most 2% of the payout)</code></pre>
+      <p>Wallets owed less than 0.001 SOL carry it forward to the next payout, so dust doesn't cost more in network fees than it's worth.</p>
+    </section>
+    <section id="rules">
+      <p class="ey"><b>04</b> · holder rules</p>
+      <h2>Holder rules</h2>
+      <table><thead><tr><th>Rule</th><th>What it does</th></tr></thead><tbody>
+        <tr><td>Snipers don't collect</td><td>Wallets that bought in the first two minutes paid the fee and never earn payouts from that coin.</td></tr>
+        <tr><td>One funder, one share</td><td>Wallets funded by the creator, or by the same wallet as another holder, are left out of payouts. Exchange withdrawals don't count as a shared funder.</td></tr>
+        <tr><td>Time multiplies</td><td>Every wallet starts at 1x and climbs to 3x over 24 hours of holding. A sell drops it back to 1x.</td></tr>
+        <tr><td>No whale takes it all</td><td>One wallet receives at most 2% of a payout. The rest is shared by everyone else.</td></tr>
+        <tr><td>The dev waits too</td><td>No launch bag: the creator gets 3% of the supply, unlocked over 30 days after graduation, and liquidity is locked forever.</td></tr>
+      </tbody></table>
+    </section>
+    <section id="orbits">
+      <p class="ey"><b>05</b> · orbits</p>
+      <h2>Orbits</h2>
+      <p>Your multiplier is your orbit. It climbs in a straight line from 1x at your first buy to 2x at 12 hours and 3x at 24 hours, and stays at 3x for as long as you hold. Buying more doesn't reset it. Selling any amount does, back to 1x.</p>
+      <div class="note"><b>i</b><p>The orbit is per wallet, per coin. Moving tokens to another wallet starts that wallet at 1x.</p></div>
+    </section>
+    <section id="split">
+      <p class="ey"><b>06</b> · where fees go</p>
+      <h2>Where every fee goes</h2>
+      <table><thead><tr><th>Share</th><th>Goes to</th></tr></thead><tbody>
+        <tr><td>20%</td><td>Meteora's protocol fee, taken by the pool itself.</td></tr>
+        <tr><td>40%</td><td>The coin's holders, every 10 minutes.</td></tr>
+        <tr><td>24%</td><td>The creator, who earns from trading instead of from a bag.</td></tr>
+        <tr><td>16%</td><td>$HELUS holders, from every coin on helus.</td></tr>
+      </tbody></table>
+    </section>
+    <section id="launch">
+      <p class="ey"><b>07</b> · launch settings</p>
+      <h2>Launch settings</h2>
+      <p>Every helus coin is created under one public config on Meteora's Dynamic Bonding Curve. These are its settings:</p>
+      <table><tbody>
+        <tr><td>Base fee</td><td>Exponential fee scheduler, 99% at launch to 1% at 120 seconds</td></tr>
+        <tr><td>Creator allocation</td><td>3% of supply, locked and unlocked over 30 days from graduation</td></tr>
+        <tr><td>Graduation</td><td>Migrates to a Meteora DAMM v2 pool; liquidity locked permanently</td></tr>
+        <tr><td>Token</td><td>Fixed supply, no mint authority, no freeze authority</td></tr>
+        <tr><td>Creator fee share</td><td>Set so the split above holds after Meteora's cut</td></tr>
+      </tbody></table>
+      <div class="note"><b>i</b><p>The config address will be published here and on X the day it goes live, so anyone can read the settings on chain.</p></div>
+    </section>
+    <section id="engine">
+      <p class="ey"><b>08</b> · the payout engine</p>
+      <h2>The payout engine</h2>
+      <p>The engine is a server that claims each coin's fees and sends the payouts. It's the one part of helus you trust us to keep running, so it's built to be checked:</p>
+      <ul><li>It only ever holds fees, never anyone's coins.</li><li>Every payout is a public transaction with a memo naming the coin and the round.</li><li>Every round publishes its list of wallets, weights and amounts.</li></ul>
+    </section>
+    <section id="replay">
+      <p class="ey"><b>09</b> · replay</p>
+      <h2>Replay</h2>
+      <p>The replay reads any Solana coin's first two minutes from the chain and runs every buy through the helus fee curve: what each wallet spent, the fee it would have paid at that second, and whether it would be left out of payouts. It finds the block where trading opened, reads up to 180 transactions after it, and traces who funded the early wallets one step back.</p>
+      <p>It's a what-if. On helus, most of those buys wouldn't have happened at a 99% fee, which is the point.</p>
+    </section>
+    <section id="api">
+      <p class="ey"><b>10</b> · public api</p>
+      <h2>Public API</h2>
+      <pre><code>GET /api/replay?mint=&lt;any Solana token&gt;</code></pre>
+      <table><thead><tr><th>Field</th><th>What it is</th></tr></thead><tbody>
+        <tr><td><code>helus.bounty</code></td><td>SOL the first two minutes would have paid in fees</td></tr>
+        <tr><td><code>helus.split</code></td><td>The bounty split into holders, creator, $HELUS and Meteora</td></tr>
+        <tr><td><code>helus.list</code></td><td>Every early buy: wallet, seconds after launch, SOL spent, fee, paid, and why it's left out</td></tr>
+        <tr><td><code>read</code></td><td>How many transactions were read, whether any went unread, and how long it took</td></tr>
+      </tbody></table>
+    </section>
+    <section id="status">
+      <p class="ey"><b>11</b> · what's live</p>
+      <h2>What's live</h2>
+      <p>Live today: the replay, the calculator, launch drafts and the docs. Next: the helus config on Meteora, then launches and payouts. Nothing on this site shows a live coin until launches open.</p>
+    </section>
+    <section id="risks">
+      <p class="ey"><b>12</b> · risks</p>
+      <h2>Risks</h2>
+      <ul><li><b>Payouts follow volume.</b> No trading, no fees, no payouts.</li><li><b>A fair start isn't a safe coin.</b> Most coins go to zero, fair or not.</li><li><b>The engine is run by us.</b> Every payout is public, but you're trusting it to keep running.</li><li><b>Paying holders</b> can make a coin look like a security in some places.</li></ul>
+      <div class="note warn"><b>!</b><p>Nothing here is financial advice. Read the rules, check the chain, and only use what you can afford to lose.</p></div>
+    </section>
+  </article>
+</div>
+</body>
+</html>
