@@ -76,12 +76,11 @@ main { position: relative; z-index: 3; }
 .word span { display: inline-block; opacity: 0; transform: translateY(40%) scale(.9); filter: blur(10px); animation: letter .9s cubic-bezier(.2, .8, .2, 1) forwards; }
 .word span:nth-child(1) { animation-delay: .25s; } .word span:nth-child(2) { animation-delay: .35s; } .word span:nth-child(3) { animation-delay: .45s; } .word span:nth-child(4) { animation-delay: .55s; } .word span:nth-child(5) { animation-delay: .65s; }
 @keyframes letter { to { opacity: 1; transform: none; filter: none; } }
+/* the wordmark is a neon tube that's almost fixed: letters drop out in short bursts (driven from home.js) */
+.word span.off { color: #24406a; text-shadow: 0 0 10px rgba(76, 157, 255, .14); }
+.word span.dim { color: rgba(156, 208, 255, .5); text-shadow: 0 0 24px rgba(156, 208, 255, .2); }
 .hero-line { margin: 18px 0 34px; font: 600 clamp(19px, 1.9vw, 26px)/1.35 var(--sans); color: var(--ink); opacity: 0; animation: fadeup .9s .9s forwards; }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; opacity: 0; animation: fadeup .9s 1.1s forwards; }
-.hero-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 54px; max-width: 600px; background: var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 0 0 1px var(--line); opacity: 0; animation: fadeup .9s 1.3s forwards; }
-.hero-facts div { padding: 16px 18px; background: rgba(10, 14, 25, .72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.hero-facts b { display: block; font: 700 26px/1 var(--px); color: var(--ink); margin-bottom: 8px; }
-.hero-facts span { font-size: 12.5px; line-height: 1.4; color: var(--dim); display: block; }
 @keyframes fadeup { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 .cue { position: absolute; left: 50%; bottom: 26px; width: 26px; height: 42px; margin-left: -13px; border-radius: 14px; box-shadow: inset 0 0 0 2px var(--line2); }
 .cue i { position: absolute; left: 50%; top: 9px; width: 4px; height: 8px; margin-left: -2px; border-radius: 2px; background: var(--ice); animation: cue 1.8s infinite; }
@@ -275,7 +274,6 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border: 0; bord
   .hero { padding: 110px 22px 90px; align-items: flex-end; }
   .hero::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 68%; background: linear-gradient(180deg, rgba(10, 14, 25, 0), rgba(10, 14, 25, .82) 30%, rgba(10, 14, 25, .9)); pointer-events: none; }
   .hero-in { position: relative; }
-  .hero-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 34px; } .hero-facts div { padding: 12px 10px; } .hero-facts b { font-size: 19px; margin-bottom: 6px; } .hero-facts span { font-size: 11px; }
   .sec { padding: 100px 22px; }
   .wrap.two, .curve, .flow, .calc, .faq { grid-template-columns: minmax(0, 1fr); gap: 30px; }
   .rules { grid-template-columns: minmax(0, 1fr); }
@@ -296,7 +294,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border: 0; bord
 
 /* numbers read in a clean face: the pixel font's 2, 3 and 5 look alike */
 :root { --num: 'Inter', system-ui, sans-serif; }
-.hero-facts b, .hud-row b, .cr b, .fl b, .rings-clock b, .rings-clock em, .slide output, .co b, .rp-hero b, .cc-head b, .oc-stats b, .lad b, .sim-badge b, .sim-stats b, .sy-grid b, .sy-head em, #raceT, .rulebox li b, .tl-n { font-family: var(--num) !important; font-weight: 800 !important; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.hud-row b, .cr b, .fl b, .rings-clock b, .rings-clock em, .slide output, .co b, .rp-hero b, .cc-head b, .oc-stats b, .lad b, .sim-badge b, .sim-stats b, .sy-grid b, .sy-head em, #raceT, .rulebox li b, .tl-n { font-family: var(--num) !important; font-weight: 800 !important; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 
 /* marquee of the rules */
 .marquee { position: relative; z-index: 3; overflow: hidden; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(13, 19, 35, .75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 16px 0; }
@@ -373,15 +371,12 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border: 0; bord
   .mq-track span { font-size: 16px; }
 }
 
-/* ---------- the intro film: no words, letterbox bars, a wordless skip ---------- */
+/* ---------- the intro film: no words, no frame, a wordless skip ---------- */
 html.intro, html.intro body { overflow: hidden; }
 .nav, .alt, .hero-in, .cue, .marquee { transition: opacity 1s ease .1s; }
 html.intro .nav, html.intro .alt, html.intro .hero-in, html.intro .cue, html.intro .marquee, html.intro main > section:not(.hero) { opacity: 0; pointer-events: none; }
-html.intro .word span, html.intro .hero-line, html.intro .hero-cta, html.intro .hero-facts { animation-play-state: paused; }
-.bars::before, .bars::after { content: ''; position: fixed; left: 0; right: 0; height: 11vh; background: #04060c; z-index: 30; transition: transform 1.3s cubic-bezier(.7, 0, .2, 1); pointer-events: none; }
-.bars::before { top: 0; } .bars::after { bottom: 0; }
-html:not(.intro) .bars::before { transform: translateY(-101%); } html:not(.intro) .bars::after { transform: translateY(101%); }
-.skipi { position: fixed; right: 30px; bottom: calc(11vh + 22px); z-index: 31; width: 50px; height: 50px; padding: 0; border: 0; border-radius: 50%; background: rgba(10, 14, 25, .55); cursor: pointer; transition: opacity .6s, transform .25s; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+html.intro .word span, html.intro .hero-line, html.intro .hero-cta { animation-play-state: paused; }
+.skipi { position: fixed; right: 30px; bottom: calc(28px + env(safe-area-inset-bottom, 0px)); z-index: 31; width: 50px; height: 50px; padding: 0; border: 0; border-radius: 50%; background: rgba(10, 14, 25, .55); cursor: pointer; transition: opacity .6s, transform .25s; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .skipi:hover { transform: scale(1.08); }
 .skipi svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .sk-bg { fill: none; stroke: rgba(156, 208, 255, .2); stroke-width: 2; }
