@@ -23,6 +23,28 @@ function endIntro() {
   try { sessionStorage.setItem('helus:intro', '1'); } catch { }
   ['wheel', 'touchstart', 'keydown'].forEach(t => removeEventListener(t, skip, { capture: true }));
   setTimeout(onScroll, 0);
+  neon();
+}
+
+// ---------- the wordmark flickers like a neon tube that's almost fixed ----------
+function neon() {
+  const ls = $$('.word span'); if (reduced || !ls.length) return;
+  let live = true;
+  new IntersectionObserver(([e]) => (live = e.isIntersecting)).observe($('#top'));
+  const set = (els, c) => els.forEach(l => { l.classList.remove('off', 'dim'); if (c) l.classList.add(c); });
+  const burst = () => {
+    if (!live || document.hidden) return setTimeout(burst, 1200);
+    const r = Math.random();
+    const pick = r < 0.18 ? ls : r < 0.55 ? [ls[1]] : [ls[(Math.random() * ls.length) | 0]];   // the e is the tube that's going
+    let t = 0;
+    for (let i = 0, n = 2 + ((Math.random() * 4) | 0); i < n; i++) {
+      const off = 35 + Math.random() * 110, on = 45 + Math.random() * 170, c = Math.random() < 0.7 ? 'off' : 'dim';
+      setTimeout(() => set(pick, c), t); t += off;
+      setTimeout(() => set(pick, null), t); t += on;
+    }
+    setTimeout(burst, t + 800 + Math.random() * 3200);
+  };
+  setTimeout(burst, 2200);
 }
 function skip(e) { if (e && e.type === 'keydown' && ['Tab', 'Shift', 'Alt', 'Control', 'Meta'].includes(e.key)) return; if (orbit && orbit.introProgress < 1) orbit.skipIntro(); else endIntro(); }
 if (lenis) lenis.stop();
