@@ -65,13 +65,13 @@ export function createOrbit(canvas, { mobile = false, reduced = false } = {}) {
 
   // ---------- orbits: three dotted rings, 1x, 2x, 3x ----------
   const RADII = [1.75, 2.3, 2.9];
-  const ringMats = [];
+  const ringMats = [], ringGeos = [];
   RADII.forEach((r, j) => {
     const n = Math.round(r * 64), pts = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; pts[i * 3] = Math.cos(a) * r; pts[i * 3 + 2] = Math.sin(a) * r; }
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pts, 3));
     const m = new THREE.PointsMaterial({ color: 0x9cd0ff, size: mobile ? 0.03 : 0.024, transparent: true, opacity: 0.0, depthWrite: false });
-    ringMats.push(m); sys.add(new THREE.Points(g, m));
+    g.userData.n = n; ringGeos.push(g); ringMats.push(m); sys.add(new THREE.Points(g, m));
   });
 
   // holders: pods on the rings
@@ -126,6 +126,21 @@ export function createOrbit(canvas, { mobile = false, reduced = false } = {}) {
   let step = -1, stepK = 0, scrollP = 0, introT = reduced ? 99 : 0, started = false, last = performance.now(), running = true, cometTimer = 0, pulseTimer = 5, simT = 0;
   const camPos = new THREE.Vector3(0, 0.4, 9.5), camWant = camPos.clone(), look = new THREE.Vector3(), lookWant = new THREE.Vector3();
   let worldX = 0, worldXWant = 0;
+  // ---------- the intro film: no words, about nine seconds ----------
+  const FILM = 9.4, film = { on: false, t: 0, done: null, pulsed: false, swarm: false };
+  const clamp01 = v => Math.max(0, Math.min(1, v)), ease = v => v * v * (3 - 2 * v);
+  const KEYS = [[0, [0, 9, 52]], [1.8, [0, 5.5, 32]], [4.4, [-2.6, 1.8, 10.2]], [6.6, [2.9, 2.4, 8.8]], [8.1, [0.8, 1.3, 9.4]]];
+  function filmCam(t, out, portrait) {
+    const hero = portrait ? [0, 0.5, 13.5] : [0, 0.5, 9.6], keys = [...KEYS, [FILM, hero]];
+    let i = 0; while (i < keys.length - 2 && t > keys[i + 1][0]) i++;
+    const [t0, a] = keys[i], [t1, b] = keys[i + 1], k = ease(clamp01((t - t0) / (t1 - t0)));
+    out.set(a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, (a[2] + (b[2] - a[2]) * k) * (portrait && i < 4 ? 1.25 : 1));
+    return i === keys.length - 2 ? k : 0;                       // how far into the hand-off to the hero framing
+  }
+  function endFilm() {
+    film.on = false; placePlanet(99); built = 1; ringGeos.forEach(g => g.setDrawRange(0, g.userData.n));
+    camPos.copy(camera.position); const cb = film.done; film.done = null; cb && cb();
+  }
   function resize() {
     const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
   }
@@ -136,7 +151,7 @@ export function createOrbit(canvas, { mobile = false, reduced = false } = {}) {
     requestAnimationFrame(frame);
     if (!running || document.hidden) { last = now; return; }
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (started && built < 1) { introT += dt; if (placePlanet(introT)) built = 1; }
+    if (started && built < 1) { introT += film.on ? (film.t > 0.9 ? dt * 0.72 : 0) : dt; if (placePlanet(introT)) built = 1; }
     simT += dt;
 
     // where the camera and the planet sit, by page position
@@ -149,25 +164,37 @@ export function createOrbit(canvas, { mobile = false, reduced = false } = {}) {
       camWant.set(a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, (a[2] + (b[2] - a[2]) * k) * (portrait ? 1.3 : 1)); worldXWant = side;
     }
     if (scrollP > 0) { camWant.y += scrollP * 0.6; }
-    camPos.lerp(camWant, Math.min(1, dt * 2.2)); worldX += (worldXWant - worldX) * Math.min(1, dt * 2.2);
-    camera.position.copy(camPos); lookWant.set(0, portrait ? 0.6 : 0, 0); look.lerp(lookWant, Math.min(1, dt * 2)); camera.lookAt(look);
-    world.position.x = worldX; world.position.y = portrait ? (step < 0 ? 2.6 : 0.9) : 0;   // on phones the planet rides above the words
+    if (film.on) {
+      film.t += dt; const t = film.t;
+      const hand = filmCam(t, camera.position, portrait);
+      worldX = (portrait ? 0 : 2.15) * hand; world.position.x = worldX; world.position.y = (portrait ? 2.6 : 0) * hand;
+      look.set(worldX, world.position.y + (portrait ? 0.6 : 0) * hand, 0); camera.lookAt(look);
+      ringGeos.forEach((g, j) => g.setDrawRange(0, Math.floor(g.userData.n * ease(clamp01((t - 4.1 - j * 0.35) / 1.25)))));
+      if (!film.pulsed && t > 6.9) { film.pulsed = true; pulse(); }
+      if (!film.swarm && t > 7.2) { film.swarm = true; for (let i = 0; i < 14; i++) spawnComet(); }
+      if (t < 7.2) cometTimer = 1;
+      if (t >= FILM) endFilm();
+    } else {
+      camPos.lerp(camWant, Math.min(1, dt * 2.2)); worldX += (worldXWant - worldX) * Math.min(1, dt * 2.2);
+      camera.position.copy(camPos); lookWant.set(0, portrait ? 0.6 : 0, 0); look.lerp(lookWant, Math.min(1, dt * 2)); camera.lookAt(look);
+      world.position.x = worldX; world.position.y = portrait ? (step < 0 ? 2.6 : 0.9) : 0;   // on phones the planet rides above the words
+    }
     sys.rotation.y += dt * 0.05; stars.rotation.y += dt * 0.004;
 
     // rings fade in once the planet is built
     const ringA = Math.min(1, built ? 1 : introT / 3);
-    ringMats.forEach((m, j) => { const focus = step === 4 ? (j === 2 ? 1 : 0.55) : 1; m.opacity = 0.5 * ringA * focus; });
-    atmo.material.uniforms.uA.value = 0.55 * Math.min(1, introT / 2.2);
+    ringMats.forEach((m, j) => { const focus = step === 4 ? (j === 2 ? 1 : 0.55) : 1; m.opacity = 0.5 * (film.on ? 1 : ringA) * focus; });
+    atmo.material.uniforms.uA.value = 0.55 * (film.on ? ease(clamp01((film.t - 3.6) / 1.4)) : Math.min(1, introT / 2.2));
     hot = Math.max(0, hot - dt * 0.8); atmo.material.uniforms.uHot.value = hot;
 
     // pods
     const pulseR = pulseT >= 0 ? 1 + pulseT * 3.4 : -1;
     for (let i = 0; i < PODS; i++) {
       const p = pod[i]; p.a += p.sp * dt * (reduced ? 0.3 : 1);
-      const r = RADII[p.ring];
+      const launch = film.on ? ease(clamp01((film.t - 5.3 - (i % 7) * 0.08) / 1.3)) : 1, r = 1.04 + (RADII[p.ring] - 1.04) * launch;
       if (pulseR > 0 && Math.abs(pulseR - r) < 0.18) p.glow = 1;
       p.glow = Math.max(0, p.glow - dt * 1.4);
-      let s = (step === 4 ? 0.8 + p.ring * 0.25 : 1) * Math.min(1, ringA * 1.4) * (1 + p.glow * 0.6);
+      let s = (step === 4 ? 0.8 + p.ring * 0.25 : 1) * (film.on ? (launch > 0.001 ? 1 : 0) : Math.min(1, ringA * 1.4)) * (1 + p.glow * 0.6);
       if (faller.on && i === 0) s = 0;
       P.set(Math.cos(p.a) * r, p.y, Math.sin(p.a) * r); Q.setFromEuler(new THREE.Euler(p.spin + simT, p.spin * 0.7 + simT * 0.6, 0)); S.setScalar(s); M.compose(P, Q, S); pods.setMatrixAt(i, M);
       tmpC.copy(PODC).lerp(GLOW, p.glow); if (step === 4 && p.ring === 2) tmpC.lerp(new THREE.Color('#9cd0ff'), 0.4); pods.setColorAt(i, tmpC);
@@ -207,7 +234,7 @@ export function createOrbit(canvas, { mobile = false, reduced = false } = {}) {
     sg.attributes.position.needsUpdate = true; sg.attributes.color.needsUpdate = true;
 
     // payouts: on their own in the hero, on cue in the story
-    pulseTimer -= dt; if (built && pulseTimer <= 0 && step !== 1) { pulse(); pulseTimer = step === 3 ? 2.6 : 7; }
+    pulseTimer -= dt; if (built && !film.on && pulseTimer <= 0 && step !== 1) { pulse(); pulseTimer = step === 3 ? 2.6 : 7; }
     if (pulseT >= 0) { pulseT += dt * 0.9; const r = 1 + pulseT * 3.4; pulseRing.scale.setScalar(r); pulseMat.opacity = Math.max(0, 0.55 * (1 - pulseT)); if (pulseT > 1) pulseT = -1; }
     stats.next = Math.max(0, stats.next - dt * 60);
     renderer.render(scene, camera);
@@ -216,6 +243,9 @@ export function createOrbit(canvas, { mobile = false, reduced = false } = {}) {
 
   return {
     start() { started = true; },
+    playIntro(done) { film.on = true; film.t = 0; film.done = done; started = true; introT = 0; placePlanet(0); built = 0; ringGeos.forEach(g => g.setDrawRange(0, 0)); },
+    skipIntro() { if (film.on) film.t = FILM; },
+    get introProgress() { return film.on ? film.t / FILM : 1; },
     setStory(s, k) { if (s !== step) { if (s === 3) pulseTimer = 0.4; step = s; } stepK = k; },
     clearStory() { step = -1; },
     setScroll(p) { scrollP = p; },

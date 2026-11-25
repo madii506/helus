@@ -7,7 +7,7 @@ const VIEWS = ['launch', 'replay', 'calc', 'orbit'];
 function show(v) {
   $$('.view').forEach(el => el.classList.toggle('on', el.dataset.view === v));
   $$('.tabs a[data-v]').forEach(a => a.classList.toggle('on', a.dataset.v === v));
-  document.title = `helus · ${{ launch: 'launch', replay: 'replay', calc: 'calculator', orbit: 'coins in orbit' }[v]}`;
+  document.title = `HELUS · ${{ launch: 'launch', replay: 'replay', calc: 'calculator', orbit: 'coins in orbit' }[v]}`;
   scrollTo({ top: 0 }); if (v === 'calc') drawCalc(); if (v === 'launch') sizeCard();
 }
 function route() { const [v, arg] = location.hash.slice(1).split('/'); const view = VIEWS.includes(v) ? v : 'launch'; show(view); if (view === 'replay' && arg) replay.run(decodeURIComponent(arg)); }

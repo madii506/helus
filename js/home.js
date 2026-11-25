@@ -14,14 +14,30 @@ if (!reduced && window.Lenis) {
 const go = (h, offset = 0) => { const el = $(h); if (!el) return; if (lenis) lenis.scrollTo(el, { offset, duration: 1.4 }); else el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' }); };
 $$('a[href^="#"]').forEach(a => a.addEventListener('click', e => { const h = a.getAttribute('href'); if (h.length > 1 && $(h)) { e.preventDefault(); go(h); } }));
 
-// ---------- the world ----------
-let orbit = null;
+// ---------- the intro film (no words), then the world behind the page ----------
+const html = document.documentElement;
+let orbit = null, introDone = false;
+const seen = (() => { try { return sessionStorage.getItem('helus:intro') === '1'; } catch { return false; } })();
+function endIntro() {
+  if (introDone) return; introDone = true; html.classList.remove('intro'); if (lenis) lenis.start();
+  try { sessionStorage.setItem('helus:intro', '1'); } catch { }
+  ['wheel', 'touchstart', 'keydown'].forEach(t => removeEventListener(t, skip, { capture: true }));
+  setTimeout(onScroll, 0);
+}
+function skip(e) { if (e && e.type === 'keydown' && ['Tab', 'Shift', 'Alt', 'Control', 'Meta'].includes(e.key)) return; if (orbit && orbit.introProgress < 1) orbit.skipIntro(); else endIntro(); }
+if (lenis) lenis.stop();
+$('#skipIntro').addEventListener('click', skip);
+['wheel', 'touchstart', 'keydown'].forEach(t => addEventListener(t, skip, { capture: true, passive: true }));
+setTimeout(endIntro, 14000);                                   // backstop: the page never stays locked
 (async () => {
   let gl = false; try { gl = !!document.createElement('canvas').getContext('webgl2'); } catch { }
-  if (!gl) return;
+  if (!gl) return endIntro();
   try { const { createOrbit } = await import('./orbit.js?v=1'); orbit = createOrbit($('#orbit'), { mobile, reduced }); window.helusOrbit = orbit; }
-  catch (e) { console.warn('orbit', e); return; }
-  await document.fonts.ready; orbit.start(); onScroll();
+  catch (e) { console.warn('orbit', e); return endIntro(); }
+  await document.fonts.ready;
+  if (reduced || seen) { orbit.start(); endIntro(); return; }
+  orbit.playIntro(endIntro);
+  const ring = $('#skP'); const tick = () => { if (introDone) return; ring.style.strokeDashoffset = 132 * (1 - orbit.introProgress); requestAnimationFrame(tick); }; requestAnimationFrame(tick);
 })();
 
 // ---------- words that arrive, blocks that rise ----------
@@ -268,6 +284,20 @@ mountSim($('#simBox'));
   };
   $$('.who-cv').forEach(cv => { let ctx = fit(cv), T = 0; addEventListener('resize', () => (ctx = fit(cv))); const f = pics[cv.dataset.who];
     const L = loop(dt => { if (!cv.offsetParent) return; if (!ctx.w) ctx = fit(cv); T += dt; const { c, w, h } = ctx; c.clearRect(0, 0, w, h); f(c, w, h, T); }); whenVisible(cv.closest('.who'), L.start, L.stop); });
+})();
+
+// ---------- one payout, step by step ----------
+(() => {
+  const box = $('#roundBox'), steps = $$('.rd', box), fill = $('.rd-fill', box), dot = $('.rd-dot', box); let T = 0;
+  const L = loop(dt => { T += dt; const k = (T / 8) % 1, i = Math.min(4, Math.floor(k * 5)); fill.style.width = `${k * 100}%`; dot.style.left = `${k * 100}%`; steps.forEach((s, j) => s.classList.toggle('on', j === i)); });
+  whenVisible(box, L.start, L.stop);
+})();
+
+// ---------- the numbers count up when they arrive ----------
+(() => {
+  const o = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; o.unobserve(e.target); const b = $('b', e.target), to = +b.dataset.n, suf = b.dataset.suf, t0 = performance.now();
+    const f = n => { const k = Math.min(1, (n - t0) / 1100), v = to * (1 - Math.pow(1 - k, 3)); b.textContent = `${Math.round(v)}${suf}`; if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }), { threshold: 0.4 });
+  $$('.pm').forEach(el => o.observe(el));
 })();
 
 // ---------- 08: replay ----------
