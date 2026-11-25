@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="intro">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>helus</title>
+<title>HELUS</title>
 <meta name="description" content="helus is a launchpad where holders get paid. Snipers pay up to 99% in the first two minutes, and that bounty is paid to the people who hold.">
 <meta name="theme-color" content="#0a0e19">
 <link rel="icon" type="image/png" sizes="32x32" href="/img/fav-32.png">
 <link rel="icon" type="image/png" sizes="64x64" href="/img/fav-64.png">
 <link rel="apple-touch-icon" href="/img/fav-180.png">
-<meta property="og:title" content="helus"><meta property="og:description" content="Get paid to hold, backed by our protocol."><meta property="og:image" content="/img/og.jpg">
+<meta property="og:title" content="HELUS"><meta property="og:description" content="Get paid to hold, backed by our protocol."><meta property="og:image" content="/img/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="/fonts/pixelify.woff2?v=2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/helus.css?v=1">
@@ -19,11 +19,13 @@
 <body class="home">
 <canvas id="orbit" aria-hidden="true"></canvas>
 <div id="haze" aria-hidden="true"></div><div id="grain" aria-hidden="true"></div>
+<div class="bars" aria-hidden="true"></div>
+<button class="skipi" id="skipIntro" type="button" aria-label="Skip the intro"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" class="sk-bg"/><circle cx="24" cy="24" r="21" class="sk-p" id="skP"/><path d="M18 17l7 7-7 7M25 17l7 7-7 7" class="sk-i"/></svg></button>
 
 <header class="nav" id="nav">
   <span></span>
-  <nav class="nav-links" aria-label="Sections">
-    <a href="#orbit-story">The orbit</a><a href="#curve">Fees</a><a href="#sim">Simulator</a><a href="#split">Split</a><a href="#rules">Rules</a><a href="#calc">Calculator</a><a href="#replay">Replay</a><a href="#faq">FAQ</a>
+  <nav class="nav-links" aria-label="Chapters">
+    <a href="#ch-how">How it works</a><a href="#ch-money">The money</a><a href="#ch-why">Why helus</a><a href="#ch-tools">Tools</a><a href="#ch-trust">Trust</a><a href="#faq">FAQ</a>
     <a class="go" href="/app">Open app</a>
   </nav>
   <span></span>
@@ -48,8 +50,10 @@
     <a class="cue" href="#problem" aria-label="Scroll"><i></i></a>
   </section>
 
-
   <div class="marquee" aria-hidden="true"><div class="mq-track"><span>snipers pay 99%</span><i></i><span>holders get paid every 10 minutes</span><i></i><span>1x to 3x for holding</span><i></i><span>the dev waits 30 days</span><i></i><span>liquidity locked forever</span><i></i><span>no claiming, no staking</span><i></i><span>snipers pay 99%</span><i></i><span>holders get paid every 10 minutes</span><i></i><span>1x to 3x for holding</span><i></i><span>the dev waits 30 days</span><i></i><span>liquidity locked forever</span><i></i><span>no claiming, no staking</span><i></i></div></div>
+
+  <!-- chapter 01 -->
+  <section class="chapter" id="ch-how" aria-label="Chapter 1"><div class="wrap"><span class="ch-n">01</span><h2 class="ch-t split-words">How it works</h2><i class="ch-line"></i></div></section>
 
   <!-- 01 -->
   <section class="sec problem" id="problem">
@@ -72,7 +76,7 @@
     <div class="story-pin" id="storyPin">
       <div class="story-sticky">
         <div class="story-text">
-          <p class="ey"><b>ALT 120</b> · the orbit</p>
+          <p class="ey"><b>ALT 090</b> · the orbit</p>
           <div class="steps">
             <div class="step on" data-s="0"><div class="n">01 <i>/ 06</i></div><h3>A coin launches on helus.</h3><p>Its rules are written into its own pool on Meteora the moment it's created. Nobody can change them afterwards: not the creator, not us.</p></div>
             <div class="step" data-s="1"><div class="n">02 <i>/ 06</i></div><h3>Snipers burn up on entry.</h3><p>The fee starts at 99% and falls to 1% over two minutes. A bot that buys in the first second keeps 1% of what it spends. The rest stays behind.</p></div>
@@ -96,7 +100,7 @@
   <!-- 03 fee curve -->
   <section class="sec" id="curve">
     <div class="wrap">
-      <p class="ey"><b>ALT 180</b> · the fee curve</p>
+      <p class="ey"><b>ALT 150</b> · the fee curve</p>
       <h2 class="h2 split-words">Fast is <em>expensive.</em></h2>
       <p class="lede rv">Drag along the curve. The fee is set by the second the buy lands, counted from the coin's first block, and it only ever goes down.</p>
       <div class="curve rv">
@@ -112,11 +116,10 @@
     </div>
   </section>
 
-
   <!-- simulator -->
   <section class="sec tint" id="sim">
     <div class="wrap">
-      <p class="ey"><b>ALT 200</b> · simulator</p>
+      <p class="ey"><b>ALT 190</b> · simulator</p>
       <h2 class="h2 split-words">Launch a test coin <em>and watch it pay.</em></h2>
       <p class="lede rv">One hour of a helus launch, run in your browser in under a minute. Bots rush the first seconds and the curve catches them, holders climb their orbits and get paid every 10 minutes. Buy in whenever you like and see what you'd earn. Every wallet here is simulated.</p>
       <div class="sim rv" id="simBox">
@@ -137,10 +140,31 @@
     </div>
   </section>
 
+  <!-- chapter 02 -->
+  <section class="chapter" id="ch-money" aria-label="Chapter 2"><div class="wrap"><span class="ch-n">02</span><h2 class="ch-t split-words">The money</h2><i class="ch-line"></i></div></section>
+
+  <!-- payout round -->
+  <section class="sec" id="round">
+    <div class="wrap">
+      <p class="ey"><b>ALT 220</b> · one payout</p>
+      <h2 class="h2 split-words">Every 10 minutes, <em>the same five steps.</em></h2>
+      <div class="round rv" id="roundBox">
+        <div class="rd-track"><i class="rd-fill"></i><b class="rd-dot"></b></div>
+        <div class="rd-steps">
+          <div class="rd"><span class="rd-n">1</span><h3>Collect</h3><p>The engine claims the fees the pool took since the last round.</p></div>
+          <div class="rd"><span class="rd-n">2</span><h3>Snapshot</h3><p>Every wallet holding the coin, minus the pool, the snipers and the shared funders.</p></div>
+          <div class="rd"><span class="rd-n">3</span><h3>Weigh</h3><p>Each wallet's tokens times its orbit, from 1x to 3x.</p></div>
+          <div class="rd"><span class="rd-n">4</span><h3>Cap</h3><p>No wallet gets more than 2%. The rest carries into the next round.</p></div>
+          <div class="rd"><span class="rd-n">5</span><h3>Send</h3><p>SOL goes out to every wallet, with a public record of the round.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 04 split -->
   <section class="sec tint" id="split">
     <div class="wrap">
-      <p class="ey"><b>ALT 240</b> · where every fee goes</p>
+      <p class="ey"><b>ALT 245</b> · where every fee goes</p>
       <h2 class="h2 split-words">Half of every fee <em>goes to the holders.</em></h2>
       <div class="flow rv">
         <svg id="flowSvg" viewBox="0 0 1100 460" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
@@ -154,45 +178,10 @@
     </div>
   </section>
 
-
-  <!-- for whom -->
-  <section class="sec" id="who">
-    <div class="wrap">
-      <p class="ey"><b>ALT 260</b> · who it's for</p>
-      <h2 class="h2 split-words">Three ways <em>to be in orbit.</em></h2>
-      <div class="who rv">
-        <div class="who-tabs" role="tablist"><button type="button" class="on" data-w="0" role="tab">Holders</button><button type="button" data-w="1" role="tab">Creators</button><button type="button" data-w="2" role="tab">$HELUS holders</button></div>
-        <div class="who-panes">
-          <div class="who-pane on"><div><h3>Get paid for staying.</h3><ul><li><b>Every 10 minutes</b>SOL lands in your wallet from the coin's fees.</li><li><b>Up to 3x</b>your share grows with every hour you hold.</li><li><b>No claiming</b>no staking, no lockups, no forms.</li><li><b>Fair entry</b>the bots in the first seconds paid for your payouts.</li></ul></div><canvas class="who-cv" data-who="0"></canvas></div>
-          <div class="who-pane"><div><h3>Launch without feeding snipers.</h3><ul><li><b>24% of every fee</b>for as long as your coin trades, before and after graduation.</li><li><b>Snipers pay you</b>the first seconds' fees fill your holders' bounty and your share.</li><li><b>Holders who stay</b>a community paid to hold, not to flip.</li><li><b>3% unlocked over 30 days</b>a creator stake that shows you're staying too.</li></ul></div><canvas class="who-cv" data-who="1"></canvas></div>
-          <div class="who-pane"><div><h3>Earn from the whole orbit.</h3><ul><li><b>16% of every fee</b>from every coin launched on helus goes to $HELUS holders.</li><li><b>The same orbits</b>1x to 3x, the same 10-minute payouts.</li><li><b>More coins, more fees</b>every launch adds a stream.</li><li><b>Public rounds</b>every payout and its list of wallets is on chain.</li></ul></div><canvas class="who-cv" data-who="2"></canvas></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- compare -->
-  <section class="sec tint" id="vs">
-    <div class="wrap">
-      <p class="ey"><b>ALT 280</b> · side by side</p>
-      <h2 class="h2 split-words">A normal launch <em>and a helus launch.</em></h2>
-      <div class="vs rv">
-        <div class="vs-row head"><span></span><b>A normal launchpad</b><b class="h">helus</b></div>
-        <div class="vs-row"><span>A bot buys in block 0</span><p>gets the lowest price</p><p class="h">pays a 99% fee</p></div>
-        <div class="vs-row"><span>Twenty wallets, one funder</span><p>looks like twenty buyers</p><p class="h">earn like zero</p></div>
-        <div class="vs-row"><span>Trading fees</span><p>go to the platform</p><p class="h">40% to holders, every 10 minutes</p></div>
-        <div class="vs-row"><span>Holding for a day</span><p>earns nothing</p><p class="h">triples your share</p></div>
-        <div class="vs-row"><span>The dev's bag</span><p>whatever they bought, sellable at once</p><p class="h">3%, unlocked over 30 days</p></div>
-        <div class="vs-row"><span>Liquidity after graduation</span><p>depends on the pad</p><p class="h">locked forever</p></div>
-        <div class="vs-row"><span>Who sets the rules</span><p>a website</p><p class="h">the pool itself, on Meteora</p></div>
-      </div>
-    </div>
-  </section>
-
   <!-- 05 rules -->
   <section class="sec" id="rules">
     <div class="wrap">
-      <p class="ey"><b>ALT 300</b> · the rules</p>
+      <p class="ey"><b>ALT 270</b> · the rules</p>
       <h2 class="h2 split-words">Five rules. <em>Every coin. No settings.</em></h2>
       <div class="rules">
         <article class="rule rv"><canvas class="rule-cv" data-anim="burn"></canvas><div class="rn">1</div><h3>Snipers don't collect.</h3><p>Wallets that buy in the first two minutes paid the fee and earn nothing from payouts. They can hold, they just don't get paid for it.</p></article>
@@ -208,7 +197,7 @@
   <section class="sec tint" id="orbits">
     <div class="wrap two">
       <div>
-        <p class="ey"><b>ALT 340</b> · orbits</p>
+        <p class="ey"><b>ALT 295</b> · orbits</p>
         <h2 class="h2 split-words">The longer you stay up, <em>the more you earn.</em></h2>
         <p class="lede rv">Every holder starts in low orbit. Twelve hours in, you're at 2x. A full day, 3x, and you stay there for as long as you hold. One sell, and you're back on the ground.</p>
         <div class="ladder rv">
@@ -221,10 +210,50 @@
     </div>
   </section>
 
+  <!-- chapter 03 -->
+  <section class="chapter" id="ch-why" aria-label="Chapter 3"><div class="wrap"><span class="ch-n">03</span><h2 class="ch-t split-words">Why helus</h2><i class="ch-line"></i></div></section>
+
+  <!-- for whom -->
+  <section class="sec" id="who">
+    <div class="wrap">
+      <p class="ey"><b>ALT 320</b> · who it's for</p>
+      <h2 class="h2 split-words">Three ways <em>to be in orbit.</em></h2>
+      <div class="who rv">
+        <div class="who-tabs" role="tablist"><button type="button" class="on" data-w="0" role="tab">Holders</button><button type="button" data-w="1" role="tab">Creators</button><button type="button" data-w="2" role="tab">$HELUS holders</button></div>
+        <div class="who-panes">
+          <div class="who-pane on"><div><h3>Get paid for staying.</h3><ul><li><b>Every 10 minutes</b>SOL lands in your wallet from the coin's fees.</li><li><b>Up to 3x</b>your share grows with every hour you hold.</li><li><b>No claiming</b>no staking, no lockups, no forms.</li><li><b>Fair entry</b>the bots in the first seconds paid for your payouts.</li></ul></div><canvas class="who-cv" data-who="0"></canvas></div>
+          <div class="who-pane"><div><h3>Launch without feeding snipers.</h3><ul><li><b>24% of every fee</b>for as long as your coin trades, before and after graduation.</li><li><b>Snipers pay you</b>the first seconds' fees fill your holders' bounty and your share.</li><li><b>Holders who stay</b>a community paid to hold, not to flip.</li><li><b>3% unlocked over 30 days</b>a creator stake that shows you're staying too.</li></ul></div><canvas class="who-cv" data-who="1"></canvas></div>
+          <div class="who-pane"><div><h3>Earn from the whole orbit.</h3><ul><li><b>16% of every fee</b>from every coin launched on helus goes to $HELUS holders.</li><li><b>The same orbits</b>1x to 3x, the same 10-minute payouts.</li><li><b>More coins, more fees</b>every launch adds a stream.</li><li><b>Public rounds</b>every payout and its list of wallets is on chain.</li></ul></div><canvas class="who-cv" data-who="2"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- compare -->
+  <section class="sec tint" id="vs">
+    <div class="wrap">
+      <p class="ey"><b>ALT 335</b> · side by side</p>
+      <h2 class="h2 split-words">A normal launch <em>and a helus launch.</em></h2>
+      <div class="vs rv">
+        <div class="vs-row head"><span></span><b>A normal launchpad</b><b class="h">helus</b></div>
+        <div class="vs-row"><span>A bot buys in block 0</span><p>gets the lowest price</p><p class="h">pays a 99% fee</p></div>
+        <div class="vs-row"><span>Twenty wallets, one funder</span><p>looks like twenty buyers</p><p class="h">earn like zero</p></div>
+        <div class="vs-row"><span>Trading fees</span><p>go to the platform</p><p class="h">40% to holders, every 10 minutes</p></div>
+        <div class="vs-row"><span>Holding for a day</span><p>earns nothing</p><p class="h">triples your share</p></div>
+        <div class="vs-row"><span>The dev's bag</span><p>whatever they bought, sellable at once</p><p class="h">3%, unlocked over 30 days</p></div>
+        <div class="vs-row"><span>Liquidity after graduation</span><p>depends on the pad</p><p class="h">locked forever</p></div>
+        <div class="vs-row"><span>Who sets the rules</span><p>a website</p><p class="h">the pool itself, on Meteora</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- chapter 04 -->
+  <section class="chapter" id="ch-tools" aria-label="Chapter 4"><div class="wrap"><span class="ch-n">04</span><h2 class="ch-t split-words">Tools</h2><i class="ch-line"></i></div></section>
+
   <!-- 07 calculator -->
   <section class="sec" id="calc">
     <div class="wrap">
-      <p class="ey"><b>ALT 380</b> · the calculator</p>
+      <p class="ey"><b>ALT 350</b> · the calculator</p>
       <h2 class="h2 split-words">What holding <em>could pay you.</em></h2>
       <div class="calc rv">
         <div class="calc-in">
@@ -246,7 +275,7 @@
   <!-- 08 replay -->
   <section class="sec tint" id="replay">
     <div class="wrap">
-      <p class="ey"><b>ALT 400</b> · replay</p>
+      <p class="ey"><b>ALT 365</b> · replay</p>
       <h2 class="h2 split-words">Replay any launch <em>as if it ran on helus.</em></h2>
       <p class="lede rv">Paste any Solana coin. helus reads its first two minutes straight from the chain and shows what its snipers would have paid into the bounty, and which wallets would have been left out of payouts.</p>
       <form class="field rv" id="rpForm" autocomplete="off">
@@ -259,10 +288,44 @@
     </div>
   </section>
 
+  <!-- chapter 05 -->
+  <section class="chapter" id="ch-trust" aria-label="Chapter 5"><div class="wrap"><span class="ch-n">05</span><h2 class="ch-t split-words">Trust</h2><i class="ch-line"></i></div></section>
+
+  <!-- parameters -->
+  <section class="sec" id="params">
+    <div class="wrap">
+      <p class="ey"><b>ALT 380</b> · the numbers</p>
+      <h2 class="h2 split-words">The numbers <em>that never change.</em></h2>
+      <div class="params">
+        <div class="pm rv"><b data-n="99" data-suf="%">0%</b><span>fee in the launch block</span></div>
+        <div class="pm rv"><b data-n="1" data-suf="%">0%</b><span>fee from two minutes on</span></div>
+        <div class="pm rv"><b data-n="120" data-suf=" s">0 s</b><span>for the curve to fall</span></div>
+        <div class="pm rv"><b data-n="10" data-suf=" min">0 min</b><span>between payouts</span></div>
+        <div class="pm rv"><b data-n="3" data-suf="x">0x</b><span>orbit after 24 hours</span></div>
+        <div class="pm rv"><b data-n="2" data-suf="%">0%</b><span>most one wallet gets from a payout</span></div>
+        <div class="pm rv"><b data-n="30" data-suf=" days">0 days</b><span>for the creator's 3% to unlock</span></div>
+        <div class="pm rv"><b data-n="40" data-suf="%">0%</b><span>of every fee to holders</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- trust -->
+  <section class="sec tint" id="trust">
+    <div class="wrap">
+      <p class="ey"><b>ALT 395</b> · check it yourself</p>
+      <h2 class="h2 split-words">Don't trust the site. <em>Read the chain.</em></h2>
+      <div class="trust">
+        <div class="tcol rv"><span class="tag">enforced by Meteora</span><h3>Written into every pool</h3><ul><li>The 99% to 1% fee curve</li><li>The creator's 3%, unlocked over 30 days</li><li>Liquidity locked forever at graduation</li><li>No mint, no freeze: a fixed supply</li></ul></div>
+        <div class="tcol rv"><span class="tag">public, every round</span><h3>Run by the payout engine</h3><ul><li>Claiming fees and paying holders</li><li>Leaving snipers and shared funders out</li><li>Orbits and the 2% cap</li><li>A published record of every round</li></ul></div>
+        <div class="tcol how rv"><span class="tag">three steps</span><h3>Check any payout</h3><ol><li>Open the round's transaction on Solscan.</li><li>Find your wallet in the round's record.</li><li>Check your weight: your tokens times your orbit.</li></ol></div>
+      </div>
+    </div>
+  </section>
+
   <!-- 09 plan -->
   <section class="sec" id="plan">
     <div class="wrap">
-      <p class="ey"><b>ALT 410</b> · flight plan</p>
+      <p class="ey"><b>ALT 405</b> · flight plan</p>
       <h2 class="h2 split-words">Built in the open, <em>stage by stage.</em></h2>
       <ol class="plan">
         <li class="rv now"><span class="pn">01</span><div><h3>Countdown</h3><p>The replay, the calculator and the docs. Run any launch through helus's rules today.</p><span class="tag">live now</span></div></li>
@@ -276,7 +339,7 @@
   <!-- 10 faq -->
   <section class="sec tint" id="faq">
     <div class="wrap">
-      <p class="ey"><b>ALT 415</b> · questions</p>
+      <p class="ey"><b>ALT 412</b> · questions</p>
       <h2 class="h2 split-words">The questions <em>worth asking first.</em></h2>
       <div class="faq">
         <details class="rv"><summary>Is helus live?</summary><p>Partly, and we'd rather say exactly which part. The replay and the calculator work today. Launches and payouts open when the helus config is live on Meteora. Nothing on this page is a live coin.</p></details>
